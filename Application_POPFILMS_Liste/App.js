@@ -5,6 +5,8 @@ import HomeScreen from "./src/screens/HomeScreen";
 import MovieScreen from "./src/screens/MovieScreen";
 import {useFonts} from "expo-font";
 import AppLoading from "expo-app-loading";
+// import { Provider } from "react-redux";
+// import store from './app/store'
 
 const Stack = createStackNavigator()
 

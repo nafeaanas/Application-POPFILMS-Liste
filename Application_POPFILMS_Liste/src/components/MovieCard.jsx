@@ -1,37 +1,78 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, TouchableNativeFeedback} from "react-native";
+import React, {useState} from "react";
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TouchableOpacity, 
+    Image, 
+    TouchableNativeFeedback,
+    ImageBackground
+} from "react-native";
 import { Colors } from "../constants/Colors";
 import { Fonts } from "../constants/Fonts";
 import {Images} from "../constants/Images"
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
+import { getPoster, getLanguage } from "../services/MovieService"; 
 
-const MovieCard = () => {
+const MovieCard = ({
+    title, 
+    poster, 
+    language, 
+    voteAverage, 
+    voteCount, 
+    size,
+    heartLess
+}) => {
+    const [liked, setLiked] = useState(false);
+    const [voteCountValue, steVoteCountValue] = useState(voteCount)
+
     return (
-        <TouchableOpacity>
-            <View style={styles.container}>
-                <View style={styles.imdbContainer}>
+        <TouchableOpacity activeOpacity={0.8}>
+            <ImageBackground 
+                style={{...styles.container, width: 230 * size, height: 340 * size}} 
+                source={{uri: getPoster(poster)}}
+                imageStyle={{ borderRadius: 12}}
+                >
+
+                <View style={{...styles.imdbContainer, paddingVertical: 3 * size}}>
                     <Image 
                     source={Images.IMDB} 
                     resizeMode="cover" 
-                    style={styles.imdbImage}
+                    style={{...styles.imdbImage, height: 20 * size, width: 50 * size}}
                     />
-                    <Text style={styles.imdbRating}>9.0</Text>
+                    <Text style={{...styles.imdbRating, marginRight: 5 * size, fontSize: 14 * size}}>{voteAverage}</Text>
                 </View>
-                <TouchableNativeFeedback>
-                <Ionicons name="heart-outline" size={24} color="black" />
-                </TouchableNativeFeedback>
-            </View>
+                {!heartLess ? (
+                    <TouchableNativeFeedback 
+                        onPress={()=> {
+                            setLiked(!liked);
+                            steVoteCountValue(
+                                liked ? voteCountValue - 1 : voteCountValue + 1
+                            );
+                        }}
+                    >
+                        <Ionicons 
+                            name={liked ? "heart" : "heart-outline"} 
+                            size={25 * size} 
+                            color={liked ? Colors.HEART : Colors.BASIC_COLR}
+                            style={{position: "absolute", bottom: 10, left: 10}}
+                        />
+                    </TouchableNativeFeedback>
+                ) : null }
+            </ImageBackground>
             <View>
-                <Text style={styles.movieTitle} numberOfLines={3}>URI - Lacasa de papel</Text>
+                <Text style={{...styles.movieTitle, width: 230 * size}} numberOfLines={3}>
+                    {title}
+                </Text>
                 <View style={styles.movieSubTitleContainer}>
-                    <Text style={styles.movieSubTitle}>Anas UI</Text>
+                    <Text style={styles.movieSubTitle}>{getLanguage(language).english_name}</Text>
                     <View style={styles.rowAndCenter}>
                         <Ionicons 
                             name="heart" 
-                            size={17} 
+                            size={17 * size} 
                             color={Colors.HEART} 
                             style={{ marginRight: 5}} />
-                        <Text style={styles.movieSubTitle}>75%</Text>
+                        <Text style={styles.movieSubTitle}>{voteCountValue}</Text>
                     </View>
                 </View>
             </View>
@@ -59,12 +100,13 @@ const styles = StyleSheet.create({
     movieSubTitleContainer:{
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
 
     },
     movieSubTitle:{
         fontSize: 12,
-        fontFamily: Fonts.REGULAR
+        fontFamily: Fonts.REGULAR,
+        color: Colors.BASIC_COLR
     },
     rowAndCenter:{
         flexDirection: "row",
@@ -90,6 +132,10 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.EXTRA_BOLD
     }
 
-})
+});
+MovieCard.defaultProps = {
+    size: 1,
+    heartLess: true
+}
 
 export default MovieCard;

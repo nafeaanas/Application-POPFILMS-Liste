@@ -1,6 +1,7 @@
 import React from "react"
 import {TouchableOpacity, View, Text, StyleSheet, Dimensions} from "react-native"
 import { Colors } from '../constants/Colors';
+import { Fonts } from "../constants/Fonts";
 
 const { width } = Dimensions.get("screen")
 
@@ -33,7 +34,8 @@ const Styles = StyleSheet.create({
     },
     genreText:{
         fontSize:13,
-        color: Colors.BASIC_COLR
+        color: Colors.BASIC_COLR,
+        fontFamily: Fonts.BOLD
     }
 })
 
