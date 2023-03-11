@@ -20,6 +20,9 @@ const getNowPlayingMovies = () =>
 const getUpcomingMovies = () => 
     TMDB_HTTP_REQUEST.get(ENDPOINTS.UPCOMING_MOVIES);
 
+const getMovieById = (movieId) =>
+    TMDB_HTTP_REQUEST.get(`${ENDPOINTS.MOVIE}/${movieId}`)
+
 const getAllGenres = () => 
     TMDB_HTTP_REQUEST.get(ENDPOINTS.GENRES);
 
@@ -33,5 +36,6 @@ export {
     getUpcomingMovies, 
     getPoster, 
     getLanguage,
-    getAllGenres
+    getAllGenres,
+    getMovieById
 }
