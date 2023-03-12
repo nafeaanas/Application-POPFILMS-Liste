@@ -10,11 +10,13 @@ import {
 } from 'react-native';
 import  { Colors }  from '../constants/Colors';
 import { Fonts } from '../constants/Fonts';
-import {getMovieById, getPoster} from "../services/MovieService";
+import {getLanguage, getMovieById, getPoster} from "../services/MovieService";
 import ItemSeparator from '../components/itemSeparator';
+import CastCard from '../components/CastCard';
 import {LinearGradient} from "expo-linear-gradient"
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import {APPEND_TO_RESPONSE as AR} from "../constants/Urls"
 
 const {height, width} = Dimensions.get('screen')
 
@@ -26,7 +28,7 @@ const MovieScreen = ({route, navigation}) => {
   const [movie, setMovie] = useState({})
 
   useEffect(()=>{
-    getMovieById(movieId).then((response) => setMovie(response.data));
+    getMovieById(movieId, `${AR.CREDITS}`).then((response) => setMovie(response?.data));
   }, [])
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -40,20 +42,56 @@ const MovieScreen = ({route, navigation}) => {
         <Image 
           style={styles.moviePosterImage} 
           resizeMode="cover" 
-          source={{uri: getPoster(movie.backdrop_path)}}
+          source={{uri: getPoster(movie?.backdrop_path)}}
         />
       </View>
       <View style={styles.headerContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity 
+          activeOpacity={0.5} 
+          onPress={()=> navigation.goBack()}
+        >
           <Feather name='chevron-left' size={35} color={Colors.BASIC_COLR}/>
         </TouchableOpacity>
         <Text style={styles.headerText}>Share</Text>
       </View>
-      <TouchableOpacity style={styles.playButton}>
+      {/* <TouchableOpacity style={styles.playButton}>
         <Ionicons name='play-circle-outline' size={70} color={Colors.BASIC_COLR}/>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <ItemSeparator height={setHeight(37)}/>
-      <Text>{movie.title}</Text>
+      <View style={styles.movieTitleContainer}>
+        <Text style={styles.movieTitle} numberOfLines={2}>
+          {movie?.original_title}
+        </Text>
+        <View style={styles.row}>
+          <Ionicons name='heart' size={22} color={Colors.HEART}/>
+          <Text style={styles.ratingText}>{movie?.vote_average}</Text>
+        </View>
+      </View>
+      <Text style={styles.genreText}>
+        {movie?.genres?.map((genre) => genre?.name)?.join(", ")} |{" "} 
+        {movie?.runtime} Min
+      </Text>
+      <Text style={styles.genreText}>
+        {getLanguage(movie?.original_language)?.english_name}
+      </Text>
+      <View style={styles.overviewContainer}>
+        <Text style={styles.overViewTitle}>Overview</Text>
+        <Text style={styles.overViewText}>{movie?.overview}</Text>
+      </View>
+      <View>
+        <Text>Cast</Text>
+        <FlatList
+          data={movie?.credits?.cast}
+          keyExtractor={(item) => item?.credit_id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          ListHeaderComponent={() => <ItemSeparator width={20}/>}
+          ItemSeparatorComponent={() => <ItemSeparator width={20}/>}
+          ListFooterComponent={() => <ItemSeparator width={20}/>}
+          renderItem={({item}) => <CastCard name={item?.name}/> }
+
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -68,7 +106,7 @@ const styles = StyleSheet.create({
     width: setWidth(145),
     alignItems: 'center',
     position: 'absolute',
-    left: setWidth((100-145)/2),
+    left: setWidth((100 - 145) / 2),
     top: 0,
     borderBottomRightRadius: 300,
     borderBottomLeftRadius: 300,
@@ -102,11 +140,57 @@ const styles = StyleSheet.create({
     color: Colors.BASIC_COLR,
     fontFamily: Fonts.BOLD
   },
-  playButton:{
-    // position: "absolute",
-    top: 75,
-    left: setWidth(50) - 70/2,
-    elevation: 11
+  // playButton:{
+  //   position: "absolute",
+  //   top: 110,
+  //   left: setWidth(50) - 70/2,
+  //   elevation: 10
+  // },
+  movieTitleContainer:{
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  movieTitle:{
+    color: Colors.BASIC_COLR,
+    fontFamily: Fonts.EXTRA_BOLD,
+    fontSize: 18,
+    width: setWidth(60)
+  },
+  ratingText:{
+    marginLeft: 5,
+    color: Colors.BASIC_COLR,
+    fontSize: 15
+  },
+  row:{
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  genreText:{
+    color: Colors.ACTVE,
+    paddingHorizontal: 20,
+    paddingTop: 5,
+    fontFamily: Fonts.BOLD,
+    fontSize: 13
+  },
+  overviewContainer:{
+    backgroundColor: Colors.ACTVE,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginVertical: 10
+  },
+  overViewTitle:{
+    color: Colors.YELLOW,
+    fontFamily: Fonts.BOLD,
+    fontSize: 18
+  },
+  overViewText:{
+    color: Colors.BASIC_COLR,
+    paddingVertical: 5,
+    fontFamily: Fonts.BOLD,
+    fontSize: 13,
+    textAlign:"justify"
   }
 });
 
